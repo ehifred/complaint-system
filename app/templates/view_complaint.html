@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-bold" style="color: #0f1f5c;">Complaint #{{ complaint.id }}</h4>
+    <a href="{{ url_for('main.dashboard') }}" class="btn btn-outline-secondary">
+        Back to Dashboard
+    </a>
+</div>
+
+<div class="row">
+    <!-- Complaint Details -->
+    <div class="col-md-8">
+        <div class="card p-4 mb-4">
+            <h5 class="fw-bold">{{ complaint.title }}</h5>
+            <div class="d-flex gap-2 mb-3">
+                <span class="badge badge-{{ complaint.status }}">
+                    {{ complaint.status.replace('_', ' ').title() }}
+                </span>
+                <span class="badge bg-secondary">{{ complaint.priority.title() }} Priority</span>
+                {% if complaint.category %}
+                <span class="badge bg-info">{{ complaint.category.name }}</span>
+                {% endif %}
+            </div>
+            <p class="text-muted small">
+                Submitted by <strong>{{ complaint.user.full_name }}</strong>
+                on {{ complaint.submitted_at.strftime('%d %b %Y at %H:%M') }}
+            </p>
+            <hr>
+            <p>{{ complaint.description }}</p>
+        </div>
+
+        <!-- Update History -->
+        <div class="card p-4">
+            <h6 class="fw-bold mb-3">Update History</h6>
+            {% if complaint.updates %}
+                {% for update in complaint.updates %}
+                <div class="border-start border-primary ps-3 mb-3">
+                    <small class="text-muted">
+                        {{ update.officer.full_name }} —
+                        {{ update.updated_at.strftime('%d %b %Y at %H:%M') }}
+                    </small>
+                    <p class="mb-1">{{ update.note }}</p>
+                    {% if update.new_status %}
+                    <span class="badge badge-{{ update.new_status }}">
+                        Status changed to: {{ update.new_status.replace('_', ' ').title() }}
+                    </span>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            {% else %}
+                <p class="text-muted">No updates yet.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Action Panel -->
+    <div class="col-md-4">
+
+        {% if current_user.role == 'admin' %}
+        <div class="card p-4 mb-3">
+            <h6 class="fw-bold mb-3">Assign to Officer</h6>
+            <form method="POST">
+                <input type="hidden" name="action" value="assign">
+                <div class="mb-3">
+                    <select name="officer_id" class="form-select">
+                        <option value="">-- Select Officer --</option>
+                        {% for officer in officers %}
+                        <option value="{{ officer.id }}"
+                            {% if complaint.assigned_to == officer.id %}selected{% endif %}>
+                            {{ officer.full_name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="submit" class="btn w-100 text-white" 
+                        style="background-color: #0f1f5c;">
+                    Assign Complaint
+                </button>
+            </form>
+        </div>
+        {% endif %}
+
+        {% if current_user.role == 'officer' or current_user.role == 'admin' %}
+        <div class="card p-4">
+            <h6 class="fw-bold mb-3">Update Complaint</h6>
+            <form method="POST">
+                <input type="hidden" name="action" value="update_status">
+                <div class="mb-3">
+                    <label class="form-label">New Status</label>
+                    <select name="status" class="form-select">
+                        <option value="submitted">Submitted</option>
+                        <option value="under_review">Under Review</option>
+                        <option value="in_progress">In Progress</option>
+                        <option value="resolved">Resolved</option>
+                        <option value="closed">Closed</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Note</label>
+                    <textarea name="note" class="form-control" rows="4"
+                              placeholder="Add an update note..." required></textarea>
+                </div>
+                <button type="submit" class="btn w-100 text-white" 
+                        style="background-color: #3b82f6;">
+                    Submit Update
+                </button>
+            </form>
+        </div>
+        {% endif %}
+
+        {% if current_user.role == 'complainant' %}
+        <div class="card p-4">
+            <h6 class="fw-bold mb-3">Complaint Info</h6>
+            <p class="small text-muted mb-1">Assigned To</p>
+            <p class="fw-bold">
+                {{ complaint.assignee.full_name if complaint.assignee else 'Not yet assigned' }}
+            </p>
+            <p class="small text-muted mb-1">Current Status</p>
+            <span class="badge badge-{{ complaint.status }}">
+                {{ complaint.status.replace('_', ' ').title() }}
+            </span>
+        </div>
+        {% endif %}
+
+    </div>
+</div>
+{% endblock %}

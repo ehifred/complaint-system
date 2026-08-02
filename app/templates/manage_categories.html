@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-bold" style="color: #0f1f5c;">Manage Categories</h4>
+</div>
+
+<div class="row">
+    <!-- Add Category Form -->
+    <div class="col-md-4">
+        <div class="card p-4">
+            <h6 class="fw-bold mb-3">Add New Category</h6>
+            <form method="POST">
+                <div class="mb-3">
+                    <label class="form-label">Category Name</label>
+                    <input type="text" name="name" class="form-control" 
+                           placeholder="e.g. Service Delivery" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Description</label>
+                    <textarea name="description" class="form-control" rows="3"
+                              placeholder="Brief description..."></textarea>
+                </div>
+                <button type="submit" class="btn w-100 text-white" 
+                        style="background-color: #0f1f5c;">
+                    Add Category
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Categories List -->
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body">
+                <h6 class="fw-bold mb-3">Existing Categories</h6>
+                {% if categories %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>#</th>
+                                <th>Name</th>
+                                <th>Description</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for category in categories %}
+                            <tr>
+                                <td>{{ category.id }}</td>
+                                <td>{{ category.name }}</td>
+                                <td>{{ category.description or '—' }}</td>
+                                <td>
+                                    {% if category.is_active %}
+                                        <span class="badge bg-success">Active</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">Inactive</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <p class="text-muted">No categories yet. Add one using the form.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

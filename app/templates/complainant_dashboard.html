@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-bold" style="color: #0f1f5c;">My Dashboard</h4>
+    <a href="{{ url_for('main.submit_complaint') }}" class="btn text-white" style="background-color: #3b82f6;">
+        + Submit New Complaint
+    </a>
+</div>
+
+<!-- Stats -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card stat-card p-3">
+            <p class="text-muted mb-1">Total Submitted</p>
+            <h3 class="fw-bold">{{ complaints|length }}</h3>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card p-3" style="border-left: 4px solid #f59e0b;">
+            <p class="text-muted mb-1">In Progress</p>
+            <h3 class="fw-bold">{{ complaints|selectattr('status','eq','in_progress')|list|length }}</h3>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card p-3" style="border-left: 4px solid #10b981;">
+            <p class="text-muted mb-1">Resolved</p>
+            <h3 class="fw-bold">{{ complaints|selectattr('status','eq','resolved')|list|length }}</h3>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card p-3" style="border-left: 4px solid #6b7280;">
+            <p class="text-muted mb-1">Closed</p>
+            <h3 class="fw-bold">{{ complaints|selectattr('status','eq','closed')|list|length }}</h3>
+        </div>
+    </div>
+</div>
+
+<!-- Complaints Table -->
+<div class="card">
+    <div class="card-body">
+        <h6 class="fw-bold mb-3">My Complaints</h6>
+        {% if complaints %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>#</th>
+                        <th>Title</th>
+                        <th>Category</th>
+                        <th>Status</th>
+                        <th>Submitted</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for complaint in complaints %}
+                    <tr>
+                        <td>{{ complaint.id }}</td>
+                        <td>{{ complaint.title }}</td>
+                        <td>{{ complaint.category.name if complaint.category else 'Uncategorised' }}</td>
+                        <td>
+                            <span class="badge badge-{{ complaint.status }}">
+                                {{ complaint.status.replace('_', ' ').title() }}
+                            </span>
+                        </td>
+                        <td>{{ complaint.submitted_at.strftime('%d %b %Y') }}</td>
+                        <td>
+                            <a href="{{ url_for('main.view_complaint', complaint_id=complaint.id) }}" 
+                               class="btn btn-sm btn-outline-primary">View</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="bi bi-inbox" style="font-size: 3rem; color: #cbd5e1;"></i>
+            <p class="text-muted mt-3">You haven't submitted any complaints yet.</p>
+            <a href="{{ url_for('main.submit_complaint') }}" class="btn text-white" style="background-color: #3b82f6;">
+                Submit Your First Complaint
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

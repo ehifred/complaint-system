@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-bold" style="color: #0f1f5c;">Admin Dashboard</h4>
+</div>
+
+<!-- Stats -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card stat-card p-3">
+            <p class="text-muted mb-1">Total Complaints</p>
+            <h3 class="fw-bold">{{ complaints|length }}</h3>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card p-3" style="border-left: 4px solid #f59e0b;">
+            <p class="text-muted mb-1">Pending</p>
+            <h3 class="fw-bold">{{ complaints|selectattr('status','eq','submitted')|list|length }}</h3>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card p-3" style="border-left: 4px solid #10b981;">
+            <p class="text-muted mb-1">Resolved</p>
+            <h3 class="fw-bold">{{ complaints|selectattr('status','eq','resolved')|list|length }}</h3>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card p-3" style="border-left: 4px solid #3b82f6;">
+            <p class="text-muted mb-1">Total Users</p>
+            <h3 class="fw-bold">{{ users|length }}</h3>
+        </div>
+    </div>
+</div>
+
+<!-- All Complaints -->
+<div class="card mb-4">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h6 class="fw-bold mb-0">All Complaints</h6>
+            <a href="{{ url_for('main.all_complaints') }}" class="btn btn-sm btn-outline-primary">View All</a>
+        </div>
+        {% if complaints %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>#</th>
+                        <th>Title</th>
+                        <th>Submitted By</th>
+                        <th>Category</th>
+                        <th>Assigned To</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for complaint in complaints[:10] %}
+                    <tr>
+                        <td>{{ complaint.id }}</td>
+                        <td>{{ complaint.title }}</td>
+                        <td>{{ complaint.user.full_name }}</td>
+                        <td>{{ complaint.category.name if complaint.category else 'Uncategorised' }}</td>
+                        <td>{{ complaint.assignee.full_name if complaint.assignee else 'Unassigned' }}</td>
+                        <td>
+                            <span class="badge badge-{{ complaint.status }}">
+                                {{ complaint.status.replace('_', ' ').title() }}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="{{ url_for('main.view_complaint', complaint_id=complaint.id) }}"
+                               class="btn btn-sm btn-outline-primary">Manage</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-4">
+            <p class="text-muted">No complaints in the system yet.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Recent Users -->
+<div class="card">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h6 class="fw-bold mb-0">Registered Users</h6>
+            <a href="{{ url_for('main.manage_users') }}" class="btn btn-sm btn-outline-primary">Manage Users</a>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>#</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+{% for user in users %}
+                    <tr>
+                        <td>{{ user.id }}</td>
+                        <td>{{ user.full_name }}</td>
+                        <td>{{ user.email }}</td>
+                        <td><span class="badge bg-secondary">{{ user.role }}</span></td>
+                        <td>
+                            {% if user.is_active %}
+                                <span class="badge bg-success">Active</span>
+                            {% else %}
+                                <span class="badge bg-danger">Inactive</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-bold" style="color: #0f1f5c;">All Complaints</h4>
+    <span class="text-muted">{{ complaints|length }} total</span>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        {% if complaints %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>#</th>
+                        <th>Title</th>
+                        <th>Submitted By</th>
+                        <th>Category</th>
+                        <th>Assigned To</th>
+                        <th>Priority</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for complaint in complaints %}
+                    <tr>
+                        <td>{{ complaint.id }}</td>
+                        <td>{{ complaint.title }}</td>
+                        <td>{{ complaint.user.full_name }}</td>
+                        <td>{{ complaint.category.name if complaint.category else 'Uncategorised' }}</td>
+                        <td>{{ complaint.assignee.full_name if complaint.assignee else 'Unassigned' }}</td>
+                        <td>
+                            {% if complaint.priority == 'high' %}
+                                <span class="badge bg-danger">High</span>
+                            {% elif complaint.priority == 'normal' %}
+                                <span class="badge bg-secondary">Normal</span>
+                            {% else %}
+                                <span class="badge bg-success">Low</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="badge badge-{{ complaint.status }}">
+                                {{ complaint.status.replace('_', ' ').title() }}
+                            </span>
+                        </td>
+                        <td>{{ complaint.submitted_at.strftime('%d %b %Y') }}</td>
+                        <td>
+                            <a href="{{ url_for('main.view_complaint', complaint_id=complaint.id) }}"
+                               class="btn btn-sm btn-outline-primary">Manage</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="bi bi-folder2-open" style="font-size: 3rem; color: #cbd5e1;"></i>
+            <p class="text-muted mt-3">No complaints in the system yet.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}d
