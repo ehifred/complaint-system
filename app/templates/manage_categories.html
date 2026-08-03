@@ -13,7 +13,7 @@
             <form method="POST">
                 <div class="mb-3">
                     <label class="form-label">Category Name</label>
-                    <input type="text" name="name" class="form-control" 
+                    <input type="text" name="name" class="form-control"
                            placeholder="e.g. Service Delivery" required>
                 </div>
                 <div class="mb-3">
@@ -21,7 +21,7 @@
                     <textarea name="description" class="form-control" rows="3"
                               placeholder="Brief description..."></textarea>
                 </div>
-                <button type="submit" class="btn w-100 text-white" 
+                <button type="submit" class="btn w-100 text-white"
                         style="background-color: #0f1f5c;">
                     Add Category
                 </button>
@@ -43,6 +43,7 @@
                                 <th>Name</th>
                                 <th>Description</th>
                                 <th>Status</th>
+                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -57,6 +58,15 @@
                                     {% else %}
                                         <span class="badge bg-danger">Inactive</span>
                                     {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{{ url_for('main.toggle_category', category_id=category.id) }}"
+                                       class="btn btn-sm btn-outline-warning">
+                                       {% if category.is_active %}Deactivate{% else %}Activate{% endif %}
+                                    </a>
+                                    <a href="{{ url_for('main.delete_category', category_id=category.id) }}"
+                                       class="btn btn-sm btn-outline-danger"
+                                       onclick="return confirm('Delete this category?')">Delete</a>
                                 </td>
                             </tr>
                             {% endfor %}

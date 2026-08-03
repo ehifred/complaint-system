@@ -249,3 +249,28 @@ def assigned_complaints():
         return redirect(url_for('main.dashboard'))
     complaints = Complaint.query.filter_by(assigned_to=current_user.id).all()
     return render_template('officer_dashboard.html', complaints=complaints)
+# ── Delete Category (Admin) ───────────────────────────────────────
+@main.route('/delete-category/<int:category_id>')
+@login_required
+def delete_category(category_id):
+    if current_user.role != 'admin':
+        flash('Access denied.', 'danger')
+        return redirect(url_for('main.dashboard'))
+    category = Category.query.get_or_404(category_id)
+    db.session.delete(category)
+    db.session.commit()
+    flash('Category deleted successfully.', 'success')
+    return redirect(url_for('main.manage_categories'))
+
+# ── Toggle Category Status (Admin) ────────────────────────────────
+@main.route('/toggle-category/<int:category_id>')
+@login_required
+def toggle_category(category_id):
+    if current_user.role != 'admin':
+        flash('Access denied.', 'danger')
+        return redirect(url_for('main.dashboard'))
+    category = Category.query.get_or_404(category_id)
+    category.is_active = not category.is_active
+    db.session.commit()
+    flash('Category updated.', 'success')
+    return redirect(url_for('main.manage_categories'))
