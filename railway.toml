@@ -1,5 +1,5 @@
-[deploy]
-startCommand = "gunicorn run:app"
+[phases.build]
+cmds = ["pip install -r requirements.txt"]
 
-[build]
-builder = "nixpacks"
+[deploy]
+startCmd = "gunicorn run:app"
