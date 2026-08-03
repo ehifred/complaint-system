@@ -274,3 +274,18 @@ def toggle_category(category_id):
     db.session.commit()
     flash('Category updated.', 'success')
     return redirect(url_for('main.manage_categories'))
+# ── Delete User (Admin) ───────────────────────────────────────────
+@main.route('/delete-user/<int:user_id>')
+@login_required
+def delete_user(user_id):
+    if current_user.role != 'admin':
+        flash('Access denied.', 'danger')
+        return redirect(url_for('main.dashboard'))
+    if user_id == current_user.id:
+        flash('You cannot delete your own account.', 'danger')
+        return redirect(url_for('main.manage_users'))
+    user = User.query.get_or_404(user_id)
+    db.session.delete(user)
+    db.session.commit()
+    flash(f'{user.full_name} has been deleted successfully.', 'success')
+    return redirect(url_for('main.manage_users'))
